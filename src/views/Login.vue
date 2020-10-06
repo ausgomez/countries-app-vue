@@ -1,6 +1,9 @@
 <template>
   <div>
     <div class="w-full mx-auto max-w-xl">
+      <h1 class="text-center text-3xl font-bold mb-3">
+        Welcome, please Log In
+      </h1>
       <form class="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
         <div class="mb-4">
           <label
@@ -14,6 +17,7 @@
             id="username"
             type="text"
             placeholder="Username"
+            v-model="username"
           />
         </div>
         <div class="mb-6">
@@ -27,13 +31,15 @@
             class="shadow appearance-none rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"
             id="password"
             type="password"
-            placeholder="******************"
+            v-model="password"
+            placeholder="Your Password"
           />
         </div>
         <div class="flex items-center justify-between">
           <button
             class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             type="button"
+            @click="login"
           >
             Sign In
           </button>
@@ -45,22 +51,32 @@
           </a>
         </div>
       </form>
-      <p class="text-center text-gray-500 text-md">
-        &copy;2020 Locations App made by
-        <a class="text-blue-300 underline" href="https://auscode.me">Antroy</a>.
-      </p>
     </div>
-    {{ $store.getters.user }}
-    {{ $store.getters.loggedIn }}
   </div>
 </template>
 
 <script>
 export default {
   data: () => ({
-    username: null,
-    password: null
-  })
+    username: 'admin',
+    password: 'suporte'
+  }),
+  methods: {
+    async login() {
+      console.log(
+        `http://localhost:8090/usuario/autenticar?login=${this.username}&senha=${this.password}`
+      )
+      this.$http
+        .post(
+          `http://localhost:8090/usuario/autenticar?login=${this.username}&senha=${this.password}`
+        )
+        .then((data) => {
+          console.log(data.data)
+          this.$store.dispatch('login', data.data)
+          this.$router.push({ name: 'Paises' })
+        })
+    }
+  }
 }
 </script>
 

@@ -1,5 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
+import axios from 'axios'
+
+const baseURL = 'http://localhost:8090'
 
 Vue.use(Vuex)
 
@@ -19,9 +22,13 @@ export default new Vuex.Store({
     login(ctx, data) {
       console.log('user to be ', data)
       ctx.commit('SET_USER', data)
+      localStorage.setItem('user', JSON.stringify(data))
     },
     logout(ctx) {
       ctx.commit('REMOVE_USER')
+    },
+    async renew(ctx) {
+      await axios.get(baseURL + '/usuario/renovar-ticket')
     }
     // checkUser(ctx) {}
   },
@@ -31,7 +38,9 @@ export default new Vuex.Store({
     },
     loggedIn(state) {
       return !!state.user
-    }
+    },
+    token: (state) => state.user.token,
+    isAdmin: (state) => state.user.administrador
   },
   modules: {}
 })

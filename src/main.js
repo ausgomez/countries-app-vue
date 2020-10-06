@@ -3,8 +3,12 @@ import App from './App.vue'
 import router from './router'
 import store from './store'
 import '@/assets/css/tailwind.css'
+import axios from 'axios'
 
 Vue.config.productionTip = false
+
+Vue.prototype.$http = axios
+Vue.prototype.$baseURL = 'http://localhost:8090'
 
 new Vue({
   router,
