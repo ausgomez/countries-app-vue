@@ -6,28 +6,45 @@
       @close="modalToggle = false"
       @submit="updatePais"
     />
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-wrap md:flex-row justify-between items-center mb-4">
       <h1 class="text-5xl font-bold">Paises</h1>
-      <div v-if="$store.getters.isAdmin">
+      <div
+        class="flex justify-around items-center order-last md:order-none"
+        v-if="!editing"
+      >
+        <input
+          type="text"
+          class="bg-gray-600 rounded-l-full text-2xl p-1 shadow text-center h-10"
+          placeholder="Search for Paises"
+          v-model="query"
+        />
         <button
-          v-if="!editing"
-          class="bg-yellow-500 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded"
-          @click="editing = true"
+          class="bg-teal-600 p-2 rounded-r-full text-xl h-10 w-10"
+          @click="lookupPaises"
         >
-          <i class="bx bx-pencil"></i> Edit
-        </button>
-        <button
-          v-else
-          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-          @click="editing = false"
-        >
-          <i class="bx bx-pencil"></i> Finish
+          <i class="bx bx-search-alt"></i>
         </button>
       </div>
+      <button
+        v-if="!editing"
+        class="bg-yellow-500 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded"
+        @click="editing = true"
+      >
+        <i class="bx bx-pencil"></i> Edit
+      </button>
+      <button
+        v-else
+        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+        @click="editing = false"
+      >
+        <i class="bx bx-pencil"></i> Finish
+      </button>
     </div>
     <div class="flex flex-wrap md:flex-row">
-      <div v-if="editing" class="w-full md:w-1/3 pb-6">
-        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-200">
+      <div v-if="editing" class="w-full md:w-1/3 pb-6 flex justify-center">
+        <div
+          class="w-full md:mx-3 rounded overflow-hidden shadow-lg bg-gray-200"
+        >
           <div class="px-6 py-4">
             <div class="font-bold text-xl mb-2 text-black">
               <div class="mb-2">
@@ -102,7 +119,7 @@
       <div
         v-for="pais in paises"
         :key="pais.id"
-        class="w-full md:w-1/3 md:pr-3 lg:pr-0 pb-6"
+        class="w-full md:w-1/3 md:pr-3 lg:pr-0 pb-6 flex justify-center"
       >
         <div
           class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-200 relative"
@@ -118,7 +135,7 @@
           <img
             class="w-full"
             :src="`https://picsum.photos/id/${pais.id}/300/100`"
-            alt="Sunset in the mountains"
+            :alt="pais.nome"
           />
           <div class="px-6 py-4">
             <div class="font-bold text-xl mb-2 text-black">
@@ -150,6 +167,28 @@
           </div>
         </div>
       </div>
+
+      <div
+        class="w-full bg-gray-800 flex-col h-64 flex items-center justify-center"
+        v-if="paises.length === 0"
+      >
+        <div class="text-4xl ">
+          No results found
+        </div>
+      </div>
+    </div>
+
+    <div
+        class="w-full bg-gray-800 flex-col h-64 flex items-center justify-center"
+        v-if="loading"
+      >
+        <div class="text-5xl ">
+          <i class="bx bx-radio-circle bx-burst bx-lg"></i>
+          <i class="bx bx-radio-circle bx-burst bx-lg"></i>
+          <i class="bx bx-radio-circle bx-burst bx-lg"></i>
+          <i class="bx bx-radio-circle bx-burst bx-lg"></i>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -167,7 +206,9 @@ export default {
     editing: false,
     newPais: { id: 0, nome: '', sigla: '', gentilico: '' },
     modalToggle: false,
-    currentPais: {}
+    currentPais: {},
+    query: '',
+    loading: false
   }),
 
   computed: {
@@ -187,6 +228,25 @@ export default {
   },
 
   methods: {
+    async lookupPaises() {
+      this.loading = true
+      this.paises = []
+      await this.$http
+        .get(utils.baseURL + '/pais/pesquisar', {
+          params: {
+            filtro: this.query,
+            token: this.$store.getters.token
+          }
+        })
+        .then((data) => (this.paises = data.data))
+        .catch((err) => {
+          utils.check401(err)
+          this.lookupPaises()
+        })
+
+      this.loading = false
+    },
+
     clickEditPais(pais) {
       this.currentPais = { ...pais }
       this.modalToggle = true
@@ -205,6 +265,7 @@ export default {
     },
 
     async fetchPaises() {
+      this.loading = true
       await this.$http
         .get(utils.baseURL + '/pais/listar', {
           params: {
@@ -216,6 +277,8 @@ export default {
           utils.check401(err)
           this.fetchPaises()
         })
+
+      this.loading = false
     },
 
     /* Adding a new Pais to the database */
