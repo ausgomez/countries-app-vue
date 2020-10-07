@@ -4,17 +4,27 @@
 
 This is a Vue.js App made to interact with a Java Server
 
-### Demo
+## Demo
 
-## Login In
+### Login In
 
-## Adding Pais
+![alt text](https://github.com/Anstroy/countries-app/blob/master/public/login.gif?raw=true)
 
-## Editing Pais
+### Adding Pais
 
-## Removing Pais
+![alt text](https://github.com/Anstroy/countries-app/blob/master/public/add.gif?raw=true)
 
-## Searching Pais
+### Editing Pais
+
+![alt text](https://github.com/Anstroy/countries-app/blob/master/public/edit.gif?raw=true)
+
+### Removing Pais
+
+![alt text](https://github.com/Anstroy/countries-app/blob/master/public/remove.gif?raw=true)
+
+### Searching Pais
+
+![alt text](https://github.com/Anstroy/countries-app/blob/master/public/search.gif?raw=true)
 
 ### To run it simply run
 
