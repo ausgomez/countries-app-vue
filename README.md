@@ -1,19 +1,19 @@
 # countries-app
 
-## Project setup
-```
-yarn install
-```
+## Description
 
-### Compiles and hot-reloads for development
+This is a Vue.js App made to interact with a Java Server
+
+### Demo
+
+### To run it simply run
+
 ```
 yarn serve
 ```
 
-### Compiles and minifies for production
-```
-yarn build
-```
+#### or
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+```
+npm run serve
+```
