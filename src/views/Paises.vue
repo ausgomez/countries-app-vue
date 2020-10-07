@@ -25,20 +25,22 @@
           <i class="bx bx-search-alt"></i>
         </button>
       </div>
-      <button
-        v-if="!editing"
-        class="bg-yellow-500 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded"
-        @click="editing = true"
-      >
-        <i class="bx bx-pencil"></i> Edit
-      </button>
-      <button
-        v-else
-        class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
-        @click="editing = false"
-      >
-        <i class="bx bx-pencil"></i> Finish
-      </button>
+      <div v-if="$store.getters.isAdmin">
+        <button
+          v-if="!editing"
+          class="bg-yellow-500 hover:bg-yellow-700 text-black font-bold py-2 px-4 rounded"
+          @click="editing = true"
+        >
+          <i class="bx bx-pencil"></i> Edit
+        </button>
+        <button
+          v-else
+          class="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+          @click="editing = false"
+        >
+          <i class="bx bx-pencil"></i> Finish
+        </button>
+      </div>
     </div>
     <div class="flex flex-wrap md:flex-row">
       <div v-if="editing" class="w-full md:w-1/3 pb-6 flex justify-center">
