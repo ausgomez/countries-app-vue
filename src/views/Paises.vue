@@ -1,5 +1,11 @@
 <template>
   <div>
+    <EditForm
+      :pais="currentPais"
+      v-if="modalToggle"
+      @close="modalToggle = false"
+      @submit="updatePais"
+    />
     <div class="flex justify-between items-center mb-4">
       <h1 class="text-5xl font-bold">Paises</h1>
       <div v-if="$store.getters.isAdmin">
@@ -34,7 +40,7 @@
                 </label>
                 <input
                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  id="username"
+                  id="nome"
                   type="text"
                   placeholder="Nome"
                   v-model="newPais.nome"
@@ -126,8 +132,21 @@
           <div class="px-6 pt-4 pb-2">
             <span
               class="inline-block bg-gray-800 rounded-full px-3 py-1 text-sm font-semibold text-white mr-2 mb-2"
-              >Language: {{ pais.gentilico }}</span
             >
+              <span>Language: </span>
+              <span>{{ pais.gentilico }}</span>
+            </span>
+
+            <p
+              v-if="editing"
+              @click="clickEditPais(pais)"
+              class="absolute bottom-0 right-0 text-gray-900 cursor-pointer p-3"
+            >
+              <span class="underline">Edit </span>
+              <span class="text-xl">
+                <i class="bx bxs-pencil"></i>
+              </span>
+            </p>
           </div>
         </div>
       </div>
@@ -136,11 +155,19 @@
 </template>
 
 <script>
+import EditForm from '@/components/Edit'
+import utils from '@/utils'
+
 export default {
+  components: {
+    EditForm
+  },
   data: () => ({
     paises: [],
     editing: false,
-    newPais: { id: 0, nome: '', sigla: '', gentilico: '' }
+    newPais: { id: 0, nome: '', sigla: '', gentilico: '' },
+    modalToggle: false,
+    currentPais: {}
   }),
 
   computed: {
@@ -160,24 +187,34 @@ export default {
   },
 
   methods: {
+    clickEditPais(pais) {
+      this.currentPais = { ...pais }
+      this.modalToggle = true
+    },
+
+    async updatePais() {
+      const pos = this.paises.findIndex((p) => p.id === this.currentPais.id)
+      this.paises[pos] = this.currentPais
+      this.modalToggle = false
+      this.currentPais = {}
+      this.$toasted.show('Pais Info updated!', {
+        position: 'top-center',
+        duration: 2000,
+        type: 'default'
+      })
+    },
+
     async fetchPaises() {
       await this.$http
-        .get(this.$baseURL + '/pais/listar', {
+        .get(utils.baseURL + '/pais/listar', {
           params: {
             token: this.$store.getters.token
           }
         })
         .then((data) => (this.paises = data.data))
         .catch((err) => {
-          if (err.response.status == 401) {
-            this.$http
-              .get(this.$baseURL + '/usuario/renovar-ticket', {
-                params: {
-                  token: this.$store.getters.token
-                }
-              })
-              .then(() => this.fetchPaises())
-          }
+          utils.check401(err)
+          this.fetchPaises()
         })
     },
 
@@ -196,7 +233,7 @@ export default {
       // If everything is there in the form, proceed to posting the request to the backend
       await this.$http
         .post(
-          this.$baseURL + `/pais/salvar?token=${this.$store.getters.token}`,
+          utils.baseURL + `/pais/salvar?token=${this.$store.getters.token}`,
           this.newPais
         )
         .then((data) => {
@@ -212,22 +249,8 @@ export default {
           this.newPais = { id: 0, nome: '', sigla: '', gentilico: '' }
         })
         .catch((err) => {
-          if (err.response.status == 401) {
-            this.$http
-              .get(this.$baseURL + '/usuario/renovar-ticket', {
-                params: {
-                  token: this.$store.getters.token
-                }
-              })
-              .then(() => {
-                this.$toasted.show(`token renewed`, {
-                  position: 'top-center',
-                  duration: 1000,
-                  type: 'default'
-                })
-                this.addPais()
-              })
-          }
+          utils.check401(err)
+          this.addPais()
         })
     },
 
@@ -239,7 +262,7 @@ export default {
       // If the user confirmed, proceed to call the POST request
       await this.$http
         .get(
-          this.$baseURL +
+          utils.baseURL +
             `/pais/excluir?id=${pais.id}&token=${this.$store.getters.token}`
         )
         .then((data) => {
@@ -254,15 +277,8 @@ export default {
           })
         })
         .catch((err) => {
-          if (err.response.status == 401) {
-            this.$http
-              .get(this.$baseURL + '/usuario/renovar-ticket', {
-                params: {
-                  token: this.$store.getters.token
-                }
-              })
-              .then(() => this.removePais(pais))
-          }
+          utils.check401(err)
+          this.removePais(pais)
         })
     }
   }
