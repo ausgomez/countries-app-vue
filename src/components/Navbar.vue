@@ -50,6 +50,11 @@ export default {
       store.dispatch('logout')
       localStorage.removeItem('user')
       this.$router.push({ name: 'Login' })
+      this.$toasted.show('See you later', {
+        position: 'top-center',
+        duration: 1000,
+        type: 'info'
+      })
     }
   }
 }

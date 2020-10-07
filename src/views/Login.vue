@@ -74,6 +74,11 @@ export default {
           console.log(data.data)
           this.$store.dispatch('login', data.data)
           this.$router.push({ name: 'Paises' })
+          this.$toasted.show(`Welcome ${this.$store.getters.user.nome}!!`, {
+            position: 'top-center',
+            duration: 1000,
+            type: 'success'
+          })
         })
     }
   }

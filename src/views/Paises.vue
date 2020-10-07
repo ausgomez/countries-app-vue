@@ -74,7 +74,11 @@
           </div>
           <div class="px-6 pt-4 pb-2">
             <button
-              class="bg-teal-600 w-full hover:bg-teal-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              :class="
+                `bg-teal-600 ${
+                  submitCheck ? '' : 'cursor-not-allowed'
+                } w-full hover:bg-teal-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`
+              "
               type="button"
               @click="addPais"
             >
@@ -112,6 +116,7 @@
             <p class="text-gray-700 text-base">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione
               facilis omnis sed! Molestiae
+              {{ submitCheck }}
             </p>
           </div>
           <div class="px-6 pt-4 pb-2">
@@ -133,6 +138,16 @@ export default {
     editing: false,
     newPais: { id: 0, nome: '', sigla: '', gentilico: '' }
   }),
+
+  computed: {
+    submitCheck() {
+      return (
+        this.newPais.nome != '' &&
+        this.newPais.sigla != '' &&
+        this.newPais.gentilico != ''
+      )
+    }
+  },
 
   created() {
     this.fetchPaises()
@@ -161,12 +176,23 @@ export default {
     },
 
     async addPais() {
+      if (!this.submitCheck) {
+        this.$toasted.show(`Missing Information`, {
+          position: 'top-center',
+          duration: 2000,
+          type: 'error'
+        })
+        return
+      }
       await this.$http
         .post(
           this.$baseURL + `/pais/salvar?token=${this.$store.getters.token}`,
           this.newPais
         )
-        .then((data) => this.paises.unshift(data.data))
+        .then((data) => {
+          this.paises.unshift(data.data)
+          this.newPais = { id: 0, nome: '', sigla: '', gentilico: '' }
+        })
         .catch((err) => {
           if (err.response.status == 401) {
             this.$http
@@ -175,20 +201,33 @@ export default {
                   token: this.$store.getters.token
                 }
               })
-              .then(() => this.addPais())
+              .then(() => {
+                this.$toasted.show(`token renewed`, {
+                  position: 'top-center',
+                  duration: 1000,
+                  type: 'default'
+                })
+                this.addPais()
+              })
           }
         })
     },
 
     async removePais(pais) {
+      if (!confirm(`Are you sure to delete ${pais.nome}? 🙄`)) return
       await this.$http
         .get(
           this.$baseURL +
             `/pais/excluir?id=${pais.id}&token=${this.$store.getters.token}`
         )
-        .then(
-          (data) => (this.paises = this.paises.filter((p) => p.id != pais.id))
-        )
+        .then((data) => {
+          this.paises = this.paises.filter((p) => p.id != pais.id)
+          this.$toasted.show(`${pais.nome} removed...`, {
+            position: 'top-center',
+            duration: 1000,
+            type: 'info'
+          })
+        })
         .catch((err) => {
           if (err.response.status == 401) {
             this.$http

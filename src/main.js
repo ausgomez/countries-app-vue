@@ -4,6 +4,9 @@ import router from './router'
 import store from './store'
 import '@/assets/css/tailwind.css'
 import axios from 'axios'
+import Toasted from 'vue-toasted'
+
+Vue.use(Toasted)
 
 Vue.config.productionTip = false
 
