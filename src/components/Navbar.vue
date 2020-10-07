@@ -38,6 +38,7 @@ import store from '../store'
 
 export default {
   computed: {
+    // These are trackers of the user state for the navbar
     loggedIn() {
       return store.getters.loggedIn
     },
@@ -46,10 +47,13 @@ export default {
     }
   },
   methods: {
+    /* LOGOUT CLICK */
     logout() {
+      // Call the $store.logout
       store.dispatch('logout')
-      localStorage.removeItem('user')
+      // Return user to login page
       this.$router.push({ name: 'Login' })
+      // display a goodbye message
       this.$toasted.show('See you later', {
         position: 'top-center',
         duration: 1000,

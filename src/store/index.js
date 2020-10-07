@@ -26,6 +26,7 @@ export default new Vuex.Store({
     },
     logout(ctx) {
       ctx.commit('REMOVE_USER')
+      localStorage.removeItem('user')
     },
     async renew(ctx) {
       await axios.get(baseURL + '/usuario/renovar-ticket')

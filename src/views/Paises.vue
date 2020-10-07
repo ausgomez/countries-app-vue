@@ -21,7 +21,7 @@
     </div>
     <div class="flex flex-wrap md:flex-row">
       <div v-if="editing" class="w-full md:w-1/3 pb-6">
-        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-white">
+        <div class="max-w-sm rounded overflow-hidden shadow-lg bg-gray-200">
           <div class="px-6 py-4">
             <div class="font-bold text-xl mb-2 text-black">
               <div class="mb-2">
@@ -38,6 +38,7 @@
                   type="text"
                   placeholder="Nome"
                   v-model="newPais.nome"
+                  v-on:keyup.enter="addPais"
                 />
               </div>
               <div class="mb-2">
@@ -53,6 +54,7 @@
                   type="text"
                   placeholder="Sigla"
                   v-model="newPais.sigla"
+                  v-on:keyup.enter="addPais"
                 />
               </div>
               <div class="mb-2">
@@ -68,6 +70,7 @@
                   type="text"
                   placeholder="Gentilico"
                   v-model="newPais.gentilico"
+                  v-on:keyup.enter="addPais"
                 />
               </div>
             </div>
@@ -75,9 +78,11 @@
           <div class="px-6 pt-4 pb-2">
             <button
               :class="
-                `bg-teal-600 ${
-                  submitCheck ? '' : 'cursor-not-allowed'
-                } w-full hover:bg-teal-800 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`
+                `${
+                  submitCheck
+                    ? 'bg-teal-600 hover:bg-teal-800'
+                    : 'bg-yellow-600 hover:bg-yellow-700 cursor-not-allowed'
+                } w-full  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`
               "
               type="button"
               @click="addPais"
@@ -116,7 +121,6 @@
             <p class="text-gray-700 text-base">
               Lorem ipsum dolor sit amet consectetur adipisicing elit. Ratione
               facilis omnis sed! Molestiae
-              {{ submitCheck }}
             </p>
           </div>
           <div class="px-6 pt-4 pb-2">
@@ -140,6 +144,7 @@ export default {
   }),
 
   computed: {
+    // This will be checking if the informtation from the form is there or not
     submitCheck() {
       return (
         this.newPais.nome != '' &&
@@ -150,6 +155,7 @@ export default {
   },
 
   created() {
+    /* Upon creation, we will fetch the paises from the backend */
     this.fetchPaises()
   },
 
@@ -175,7 +181,9 @@ export default {
         })
     },
 
+    /* Adding a new Pais to the database */
     async addPais() {
+      // Making sure that the form is not missing any info
       if (!this.submitCheck) {
         this.$toasted.show(`Missing Information`, {
           position: 'top-center',
@@ -184,13 +192,23 @@ export default {
         })
         return
       }
+
+      // If everything is there in the form, proceed to posting the request to the backend
       await this.$http
         .post(
           this.$baseURL + `/pais/salvar?token=${this.$store.getters.token}`,
           this.newPais
         )
         .then((data) => {
+          // Once the data is sent to the backend, push the new pais to the local array
           this.paises.unshift(data.data)
+          // Notify the user
+          this.$toasted.show(`Pais ${this.newPais.nome} added!`, {
+            position: 'top-center',
+            duration: 2000,
+            type: 'success'
+          })
+          // Then clear the newPais object (clear form)
           this.newPais = { id: 0, nome: '', sigla: '', gentilico: '' }
         })
         .catch((err) => {
@@ -213,15 +231,22 @@ export default {
         })
     },
 
+    /* REMOVING A PAIS FROM THE LIST */
     async removePais(pais) {
+      // Ask the user to confirm first
       if (!confirm(`Are you sure to delete ${pais.nome}? 🙄`)) return
+
+      // If the user confirmed, proceed to call the POST request
       await this.$http
         .get(
           this.$baseURL +
             `/pais/excluir?id=${pais.id}&token=${this.$store.getters.token}`
         )
         .then((data) => {
+          // Remove the deleted pais from the local array using a simple Array filter()
           this.paises = this.paises.filter((p) => p.id != pais.id)
+
+          // Notify the user that the pais is gone
           this.$toasted.show(`${pais.nome} removed...`, {
             position: 'top-center',
             duration: 1000,

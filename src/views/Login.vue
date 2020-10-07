@@ -62,24 +62,35 @@ export default {
     password: 'suporte'
   }),
   methods: {
+    // Login the user info
     async login() {
-      console.log(
-        `http://localhost:8090/usuario/autenticar?login=${this.username}&senha=${this.password}`
-      )
-      this.$http
+      await this.$http
         .post(
           `http://localhost:8090/usuario/autenticar?login=${this.username}&senha=${this.password}`
         )
         .then((data) => {
-          console.log(data.data)
-          this.$store.dispatch('login', data.data)
-          this.$router.push({ name: 'Paises' })
-          this.$toasted.show(`Welcome ${this.$store.getters.user.nome}!!`, {
-            position: 'top-center',
-            duration: 1000,
-            type: 'success'
-          })
+          // check if user info was returned and not null
+          if (data.data.login != null) {
+            // Everything is good so we proceed to set out $store.user to be the logged user
+            this.$store.dispatch('login', data.data)
+            // send the user back to main page
+            this.$router.push({ name: 'Paises' })
+            // Display welcome message
+            this.$toasted.show(`Welcome ${this.$store.getters.user.nome}!!`, {
+              position: 'top-center',
+              duration: 1000,
+              type: 'success'
+            })
+          } else {
+            // if null, it means that the credentials are wrong, so send a message to the user
+            this.$toasted.show('Invalid credentials', {
+              position: 'top-center',
+              duration: 1000,
+              type: 'error'
+            })
+          }
         })
+        .catch((err) => alert(err))
     }
   }
 }
