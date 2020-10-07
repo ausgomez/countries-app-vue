@@ -179,15 +179,14 @@
     </div>
 
     <div
-        class="w-full bg-gray-800 flex-col h-64 flex items-center justify-center"
-        v-if="loading"
-      >
-        <div class="text-5xl ">
-          <i class="bx bx-radio-circle bx-burst bx-lg"></i>
-          <i class="bx bx-radio-circle bx-burst bx-lg"></i>
-          <i class="bx bx-radio-circle bx-burst bx-lg"></i>
-          <i class="bx bx-radio-circle bx-burst bx-lg"></i>
-        </div>
+      class="w-full bg-gray-800 flex-col h-64 flex items-center justify-center"
+      v-if="loading"
+    >
+      <div class="text-5xl ">
+        <i class="bx bx-radio-circle bx-burst bx-lg"></i>
+        <i class="bx bx-radio-circle bx-burst bx-lg"></i>
+        <i class="bx bx-radio-circle bx-burst bx-lg"></i>
+        <i class="bx bx-radio-circle bx-burst bx-lg"></i>
       </div>
     </div>
   </div>
