@@ -11,40 +11,40 @@
       <div class="px-6 py-4">
         <div class="font-bold text-xl mb-2 text-black">
           <div class="mb-2">
-            <h1 class="text-center text-2xl">Modify {{ country.nome }}</h1>
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="nome">
-              Nome
+            <h1 class="text-center text-2xl">Modify {{ country.name }}</h1>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="name">
+              Name
             </label>
             <input
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="nome"
+              id="name"
               type="text"
-              placeholder="Nome"
-              v-model="country.nome"
+              placeholder="Name"
+              v-model="country.name"
             />
           </div>
           <div class="mb-2">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="sigla">
-              Sigla
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="short">
+              Short
             </label>
             <input
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="sigla"
+              id="short"
               type="text"
-              placeholder="Sigla"
-              v-model="country.sigla"
+              placeholder="Short"
+              v-model="country.short"
             />
           </div>
           <div class="mb-2">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="gentilico">
-              Gentilico
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="lang">
+              Language
             </label>
             <input
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="gentilico"
+              id="lang"
               type="text"
-              placeholder="Gentilico"
-              v-model="country.gentilico"
+              placeholder="Language"
+              v-model="country.lang"
             />
           </div>
         </div>
@@ -70,7 +70,9 @@
 export default {
   props: ['country'],
   data: () => ({}),
-  created() {},
+  created() {
+    console.log('EDITING', this.country)
+  },
   methods: {
     close() {
       if (confirm('Unsaved changes will be lost')) {
@@ -79,8 +81,7 @@ export default {
     },
     submit() {
       if (this.submitCheck) {
-        this.country = this.tempCountry
-        this.$emit('submit')
+        this.$emit('submit', this.country)
       } else {
         this.$toasted.show(`Missing Information`, {
           position: 'top-center',
@@ -93,7 +94,7 @@ export default {
   computed: {
     // This will be checking if the informtation from the form is there or not
     submitCheck() {
-      return this.country.nome != '' && this.country.sigla != '' && this.country.gentilico != ''
+      return this.country.name != '' && this.country.short != '' && this.country.lang != ''
     },
   },
 }

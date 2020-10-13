@@ -3,16 +3,13 @@
     <EditForm :country="currentCountry" v-if="modalToggle" @close="modalToggle = false" @submit="updateCountry" />
     <div class="flex flex-wrap md:flex-row justify-between items-center mb-4">
       <h1 class="text-5xl font-bold">Countries</h1>
-      <div class="flex justify-around items-center order-last md:order-none" v-if="!editing">
+      <div class="flex justify-around items-center order-last md:order-none">
         <input
           type="text"
-          class="bg-gray-600 rounded-l-full text-2xl p-1 shadow text-center h-10"
+          class="bg-gray-600 rounded-full text-2xl p-1 shadow text-center h-10"
           placeholder="Search for Country"
           v-model="query"
         />
-        <button class="bg-teal-600 p-2 rounded-r-full text-xl h-10 w-10" @click="lookupCountries">
-          <i class="bx bx-search-alt"></i>
-        </button>
       </div>
       <div v-if="$store.getters.isAdmin">
         <button
@@ -94,8 +91,9 @@
         </div>
       </div>
 
+      <!-- RENDER EACH CARD FOR EACH COUNTRY -->
       <div
-        v-for="(country, i) in countries"
+        v-for="(country, i) in filteredCountries"
         :key="country.id"
         class="w-full md:w-1/3 md:pr-3 lg:pr-0 pb-6 flex justify-center"
       >
@@ -135,7 +133,10 @@
         </div>
       </div>
 
-      <div class="w-full bg-gray-800 flex-col h-64 flex items-center justify-center" v-if="countries.length === 0">
+      <div
+        class="w-full bg-gray-800 flex-col h-64 flex items-center justify-center"
+        v-if="filteredCountries.length === 0"
+      >
         <div class="text-4xl ">
           No results found
         </div>
@@ -155,7 +156,6 @@
 
 <script>
 import EditForm from '@/components/Edit'
-import utils from '@/utils'
 
 export default {
   components: {
@@ -176,6 +176,10 @@ export default {
     submitCheck() {
       return this.newCountry.name != '' && this.newCountry.short != '' && this.newCountry.lang != ''
     },
+    filteredCountries() {
+      console.log('compuyer countries')
+      return this.countries.filter((c) => c.name.toLowerCase().indexOf(this.query.toLowerCase()) > -1)
+    },
   },
 
   created() {
@@ -184,23 +188,41 @@ export default {
   },
 
   methods: {
-    async lookupCountries() {},
+    async lookupCountries() {
+      console.log(this.query)
+    },
 
     clickEditCountry(country) {
       this.currentCountry = { ...country }
       this.modalToggle = true
     },
 
-    async updateCountry() {
-      const pos = this.countries.findIndex((p) => p.id === this.currentCountry.id)
-      this.countries[pos] = this.currentCountry
-      this.modalToggle = false
-      this.currentCountry = {}
-      this.$toasted.show('Country Info updated!', {
-        position: 'top-center',
-        duration: 2000,
-        type: 'default',
-      })
+    async updateCountry(country) {
+      this.loading = true
+      /* Modifying info in DB */
+      this.$appwrite.database
+        .updateDocument('5f85101c09c00', country.$id, country, ['*'], ['*'])
+        .then(() => {
+          const pos = this.countries.findIndex((p) => p.$id === this.currentCountry.$id)
+          this.countries[pos] = country
+          this.modalToggle = false
+          this.currentCountry = {}
+          this.$toasted.show('Country Info updated!', {
+            position: 'top-center',
+            duration: 2000,
+            type: 'default',
+          })
+        })
+        .catch((err) => {
+          console.error(err)
+          this.$toasted.show('Something went wrong', {
+            position: 'top-center',
+            duration: 2000,
+            type: 'error',
+          })
+        })
+
+      this.loading = false
     },
 
     async fetchCountries() {
@@ -249,24 +271,18 @@ export default {
       // Ask the user to confirm first
       if (!confirm(`Are you sure to delete ${country.name}? 🙄`)) return
 
-      // If the user confirmed, proceed to call the POST request
-      await this.$http
-        .get(utils.baseURL + `/country/excluir?id=${country.id}&token=${this.$store.getters.token}`)
-        .then((data) => {
-          // Remove the deleted country from the local array using a simple Array filter()
-          this.countries = this.countries.filter((p) => p.id != country.id)
+      // If the user confirmed, proceed to call the Action
+      await this.$appwrite.database.deleteDocument('5f85101c09c00', country.$id).then(() => {
+        // Remove the deleted country from the local array using a simple Array filter()
+        this.countries = this.countries.filter((p) => p.$id != country.$id)
 
-          // Notify the user that the country is gone
-          this.$toasted.show(`${country.name} removed...`, {
-            position: 'top-center',
-            duration: 1000,
-            type: 'info',
-          })
+        // Notify the user that the country is gone
+        this.$toasted.show(`${country.name} removed...`, {
+          position: 'top-center',
+          duration: 1000,
+          type: 'info',
         })
-        .catch((err) => {
-          utils.check401(err)
-          this.removeCountry(country)
-        })
+      })
     },
   },
 }
