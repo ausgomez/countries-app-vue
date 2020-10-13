@@ -1,20 +1,6 @@
-import axios from 'axios'
-import store from '@/store'
+import * as Appwrite from 'appwrite'
 
-const baseURL = 'http://localhost:8090'
+const appwrite = new Appwrite()
+appwrite.setEndpoint(process.env.VUE_APP_APPWRITE_ENDPOINT).setProject(process.env.VUE_APP_APPWRITE_PROJECT)
 
-export default {
-  baseURL,
-  check401: async (err) => {
-    if (err.response.status == 401) {
-      await axios
-        .get(baseURL + '/usuario/renovar-ticket', {
-          params: {
-            token: store.getters.token
-          }
-        })
-        .then(() => console.log('TOKEN RENEWED!!'))
-        .catch((e) => console.err(e))
-    }
-  }
-}
+export { appwrite }

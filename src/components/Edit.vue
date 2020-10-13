@@ -1,25 +1,18 @@
 <template>
-  <div
-    class="modal z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center text-black font-bold"
-  >
+  <div class="modal z-50 fixed w-full h-full top-0 left-0 flex items-center justify-center text-black font-bold">
     <div
       class="modal-overlay absolute w-full h-full bg-black opacity-50 top-0 left-0 cursor-pointer"
       @click="close()"
     ></div>
-    <div
-      class="absolute w-auto max-w-md rounded overflow-hidden shadow-lg bg-gray-200"
-    >
+    <div class="absolute w-auto max-w-md rounded overflow-hidden shadow-lg bg-gray-200">
       <a class="cursor-pointer text-2xl text-gray-600 " @click="close">
         <i class="bx bx-x-circle absolute right-0 top-0 mr-3 mt-2"></i>
       </a>
       <div class="px-6 py-4">
         <div class="font-bold text-xl mb-2 text-black">
           <div class="mb-2">
-            <h1 class="text-center text-2xl">Modify {{ pais.nome }}</h1>
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="nome"
-            >
+            <h1 class="text-center text-2xl">Modify {{ country.nome }}</h1>
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="nome">
               Nome
             </label>
             <input
@@ -27,14 +20,11 @@
               id="nome"
               type="text"
               placeholder="Nome"
-              v-model="pais.nome"
+              v-model="country.nome"
             />
           </div>
           <div class="mb-2">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="sigla"
-            >
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="sigla">
               Sigla
             </label>
             <input
@@ -42,14 +32,11 @@
               id="sigla"
               type="text"
               placeholder="Sigla"
-              v-model="pais.sigla"
+              v-model="country.sigla"
             />
           </div>
           <div class="mb-2">
-            <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="gentilico"
-            >
+            <label class="block text-gray-700 text-sm font-bold mb-2" for="gentilico">
               Gentilico
             </label>
             <input
@@ -57,7 +44,7 @@
               id="gentilico"
               type="text"
               placeholder="Gentilico"
-              v-model="pais.gentilico"
+              v-model="country.gentilico"
             />
           </div>
         </div>
@@ -66,15 +53,13 @@
         <button
           :class="
             `${
-              submitCheck
-                ? 'bg-teal-600 hover:bg-teal-800'
-                : 'bg-yellow-600 hover:bg-yellow-700 cursor-not-allowed'
+              submitCheck ? 'bg-teal-600 hover:bg-teal-800' : 'bg-yellow-600 hover:bg-yellow-700 cursor-not-allowed'
             } w-full  text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline`
           "
           type="button"
           @click="submit"
         >
-          Add Pais
+          Add country
         </button>
       </div>
     </div>
@@ -83,7 +68,7 @@
 
 <script>
 export default {
-  props: ['pais'],
+  props: ['country'],
   data: () => ({}),
   created() {},
   methods: {
@@ -94,26 +79,22 @@ export default {
     },
     submit() {
       if (this.submitCheck) {
-        this.pais = this.tempPais
+        this.country = this.tempCountry
         this.$emit('submit')
       } else {
         this.$toasted.show(`Missing Information`, {
           position: 'top-center',
           duration: 2000,
-          type: 'error'
+          type: 'error',
         })
       }
-    }
+    },
   },
   computed: {
     // This will be checking if the informtation from the form is there or not
     submitCheck() {
-      return (
-        this.pais.nome != '' &&
-        this.pais.sigla != '' &&
-        this.pais.gentilico != ''
-      )
-    }
-  }
+      return this.country.nome != '' && this.country.sigla != '' && this.country.gentilico != ''
+    },
+  },
 }
 </script>
