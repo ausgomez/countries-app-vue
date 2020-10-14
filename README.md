@@ -2,7 +2,7 @@
 
 ## Description
 
-This is a Vue.js App made to interact with a Java Server
+This is a Vue.js App made to interact with a Appwrite Server
 
 ## Demo
 
